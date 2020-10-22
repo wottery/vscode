@@ -99,6 +99,7 @@ export interface IMatchContext {
 	uri: URI;
 	/** location of where the matched text is inside the file */
 	matchRange: Range;
+	renderableMatch: Match;
 }
 
 export interface IFileMatchContext {
@@ -108,6 +109,7 @@ export interface IFileMatchContext {
 	uri: URI;
 	/** matches for this particular file */
 	matches: IMatchContext[];
+	renderableMatch: FileMatch;
 }
 
 export interface IFolderMatchContext {
@@ -119,9 +121,15 @@ export interface IFolderMatchContext {
 	matches: IFileMatchContext[];
 	/** resource that might be associate with this match  */
 	resource: URI | null;
+	renderableMatch: FolderMatch;
 }
 
-export type IRenderableMatchContext = IMatchContext | IFileMatchContext | IFolderMatchContext;
+export interface IFolderMatchWithResourceContext extends IFolderMatchContext {
+	resource: URI;
+	renderableMatch: FolderMatchWithResource;
+}
+
+export type IRenderableMatchContext = (IMatchContext | IFileMatchContext | IFolderMatchContext);
 
 function toMatchContext(match: Match): IMatchContext {
 	return {
@@ -130,7 +138,8 @@ function toMatchContext(match: Match): IMatchContext {
 		uri: URI.parse(match.parent().id()),
 		matchedText: match.fullMatchText(),
 		replacementText: match.replaceString,
-		matchRange: match.range()
+		matchRange: match.range(),
+		renderableMatch: match
 	} as IMatchContext;
 }
 
@@ -138,7 +147,8 @@ function toFileMatchContext(fileMatch: FileMatch): IFileMatchContext {
 	return {
 		matchingKind: 'fileMatch',
 		uri: URI.parse(fileMatch.id()),
-		matches: fileMatch.matches().map(toMatchContext)
+		matches: fileMatch.matches().map(toMatchContext),
+		renderableMatch: fileMatch
 	} as IFileMatchContext;
 }
 
@@ -146,7 +156,8 @@ function toFolderMatchContext<T extends IFolderMatchContext>(folderMatch: Folder
 	return {
 		matchingKind: 'folderMatch',
 		matches: folderMatch.matches().map(toFileMatchContext),
-		id: folderMatch.id()
+		id: folderMatch.id(),
+		renderableMatch: folderMatch
 	} as T;
 }
 
