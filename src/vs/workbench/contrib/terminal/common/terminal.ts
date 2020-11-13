@@ -119,6 +119,7 @@ export interface ITerminalConfiguration {
 	allowMnemonics: boolean;
 	cwd: string;
 	confirmOnExit: boolean;
+	overrideWorkbenchCommandsAndKeybindings: boolean;
 	enableBell: boolean;
 	inheritEnv: boolean;
 	env: {

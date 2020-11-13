@@ -544,7 +544,7 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 
 			// Skip processing by xterm.js of keyboard events that resolve to commands described
 			// within commandsToSkipShell
-			if (resolveResult && this._skipTerminalCommands.some(k => k === resolveResult.commandId)) {
+			if (resolveResult && !this._configHelper.config.overrideWorkbenchCommandsAndKeybindings && this._skipTerminalCommands.some(k => k === resolveResult.commandId)) {
 				event.preventDefault();
 				return false;
 			}
