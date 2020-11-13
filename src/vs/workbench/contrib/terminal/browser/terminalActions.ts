@@ -342,6 +342,7 @@ export class SwitchTerminalAction extends Action {
 		}
 		if (item === ConfigureTerminalSettingsAction.LABEL) {
 			this._commands.executeCommand('workbench.action.openSettings', '@terminal');
+			this._terminalService.refreshActiveTab();
 		}
 
 		const indexMatches = terminalIndexRe.exec(item);
