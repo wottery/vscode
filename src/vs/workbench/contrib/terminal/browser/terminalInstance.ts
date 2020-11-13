@@ -555,9 +555,9 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 			if (!this._configHelper.config.overrideWorkbenchCommandsAndKeybindings) {
 				this._notificationService.notify({
 					severity: Severity.Info,
-					message: nls.localize('configure terminal settings', "Configure your terminal settings to determine whether the workbench or terminal handles keybindings and more."),
+					message: nls.localize('message configure terminal settings', "Configure your terminal settings to determine whether the workbench or terminal handles keybindings and more."),
 					actions: {
-						primary: [new Action('configure terminal settings', nls.localize('configure terminal settings', "Configure your terminal settings to determine whether the workbench or terminal handles keybindings and more."), '', true, () => this._commands.executeCommand('workbench.action.openSettings', '@terminal'))]
+						primary: [new Action('configure terminal settings', nls.localize('configure terminal settings', "Configure Terminal Settings"), '', true, () => this._commands.executeCommand('workbench.action.openSettings', '@terminal'))]
 					}
 				});
 			}
