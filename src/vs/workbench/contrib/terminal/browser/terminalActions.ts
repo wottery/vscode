@@ -295,6 +295,23 @@ export class SelectDefaultShellWindowsTerminalAction extends Action {
 	}
 }
 
+export class ConfigureTerminalSettingsAction extends Action {
+
+	public static readonly ID = TERMINAL_COMMAND_ID.CONFIGURE_TERMINAL_SETTINGS;
+	public static readonly LABEL = localize('workbench.action.terminal.openSettings', "Configure Terminal Settings", '@terminal');
+
+	constructor(
+		id: string, label: string,
+	) {
+		super(id, label);
+	}
+
+	async run() {
+
+	}
+}
+
+
 const terminalIndexRe = /^([0-9]+): /;
 
 export class SwitchTerminalAction extends Action {
@@ -322,6 +339,9 @@ export class SwitchTerminalAction extends Action {
 		if (item === SelectDefaultShellWindowsTerminalAction.LABEL) {
 			this._terminalService.refreshActiveTab();
 			return this._terminalService.selectDefaultShell();
+		}
+		if (item === ConfigureTerminalSettingsAction.LABEL) {
+			this._commands.executeCommand('workbench.action.openSettings', '@terminal');
 		}
 
 		const indexMatches = terminalIndexRe.exec(item);
@@ -386,6 +406,7 @@ function getTerminalSelectOpenItems(terminalService: ITerminalService, contribut
 	}
 
 	items.push({ text: SelectDefaultShellWindowsTerminalAction.LABEL });
+	items.push({ text: ConfigureTerminalSettingsAction.LABEL });
 	return items;
 }
 
