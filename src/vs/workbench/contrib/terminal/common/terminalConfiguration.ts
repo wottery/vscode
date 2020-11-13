@@ -15,6 +15,11 @@ export const terminalConfiguration: IConfigurationNode = {
 	title: localize('terminalIntegratedConfigurationTitle', "Integrated Terminal"),
 	type: 'object',
 	properties: {
+		'terminal.integrated.overrideWorkbenchCommandsAndKeybindings': {
+			description: localize('terminal.integrated.overrideWorkbenchCommandsAndKeybindings', "Controls whether the terminal, when focused, handles nearly all of the commands and keybindings. Excludes opening the command palette, focusing the side bar, and focusing the activity bar."),
+			type: 'boolean',
+			default: false
+		},
 		'terminal.integrated.automationShell.linux': {
 			markdownDescription: localize({
 				key: 'terminal.integrated.automationShell.linux',
