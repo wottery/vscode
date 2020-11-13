@@ -46,6 +46,8 @@ import { IEnvironmentVariableInfo } from 'vs/workbench/contrib/terminal/common/e
 import { TerminalLaunchHelpAction } from 'vs/workbench/contrib/terminal/browser/terminalActions';
 import { TypeAheadAddon } from 'vs/workbench/contrib/terminal/browser/terminalTypeAheadAddon';
 import { BrowserFeatures } from 'vs/base/browser/canIUse';
+import { Action } from 'vs/base/common/actions';
+import { ICommandService } from 'vs/platform/commands/common/commands';
 
 // How long in milliseconds should an average frame take to render for a notification to appear
 // which suggests the fallback DOM-based renderer
@@ -195,7 +197,8 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 		@ILogService private readonly _logService: ILogService,
 		@IStorageService private readonly _storageService: IStorageService,
 		@IAccessibilityService private readonly _accessibilityService: IAccessibilityService,
-		@IViewDescriptorService private readonly _viewDescriptorService: IViewDescriptorService
+		@IViewDescriptorService private readonly _viewDescriptorService: IViewDescriptorService,
+		@ICommandService private readonly _commands: ICommandService
 	) {
 		super();
 
@@ -549,6 +552,15 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 				return false;
 			}
 
+			if (!this._configHelper.config.overrideWorkbenchCommandsAndKeybindings) {
+				this._notificationService.notify({
+					severity: Severity.Info,
+					message: nls.localize('configure terminal settings', "Configure your terminal settings to determine whether the workbench or terminal handles keybindings and more."),
+					actions: {
+						primary: [new Action('configure terminal settings', nls.localize('configure terminal settings', "Configure your terminal settings to determine whether the workbench or terminal handles keybindings and more."), '', true, () => this._commands.executeCommand('workbench.action.openSettings', '@terminal'))]
+					}
+				});
+			}
 			// Skip processing by xterm.js of keyboard events that match menu bar mnemonics
 			if (this._configHelper.config.allowMnemonics && !platform.isMacintosh && event.altKey) {
 				return false;

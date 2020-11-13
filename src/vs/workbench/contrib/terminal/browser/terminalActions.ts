@@ -323,7 +323,7 @@ export class SwitchTerminalAction extends Action {
 		id: string, label: string,
 		@ITerminalService private readonly _terminalService: ITerminalService,
 		@ITerminalContributionService private readonly _contributions: ITerminalContributionService,
-		@ICommandService private readonly _commands: ICommandService,
+		@ICommandService private readonly _commands: ICommandService
 	) {
 		super(id, label, 'terminal-action switch-terminal');
 	}
