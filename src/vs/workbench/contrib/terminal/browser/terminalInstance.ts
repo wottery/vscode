@@ -25,7 +25,7 @@ import { activeContrastBorder, scrollbarSliderActiveBackground, scrollbarSliderB
 import { ICssStyleCollector, IColorTheme, IThemeService, registerThemingParticipant } from 'vs/platform/theme/common/themeService';
 import { PANEL_BACKGROUND, SIDE_BAR_BACKGROUND } from 'vs/workbench/common/theme';
 import { TerminalWidgetManager } from 'vs/workbench/contrib/terminal/browser/widgets/widgetManager';
-import { IShellLaunchConfig, ITerminalProcessManager, KEYBINDING_CONTEXT_TERMINAL_TEXT_SELECTED, NEVER_MEASURE_RENDER_TIME_STORAGE_KEY, ProcessState, TERMINAL_VIEW_ID, IWindowsShellHelper, KEYBINDING_CONTEXT_TERMINAL_A11Y_TREE_FOCUS, INavigationMode, TitleEventSource, DEFAULT_COMMANDS_TO_SKIP_SHELL, ITerminalLaunchError, IProcessDataEvent, ITerminalDimensionsOverride } from 'vs/workbench/contrib/terminal/common/terminal';
+import { IShellLaunchConfig, ITerminalProcessManager, KEYBINDING_CONTEXT_TERMINAL_TEXT_SELECTED, NEVER_MEASURE_RENDER_TIME_STORAGE_KEY, ProcessState, TERMINAL_VIEW_ID, IWindowsShellHelper, KEYBINDING_CONTEXT_TERMINAL_A11Y_TREE_FOCUS, INavigationMode, TitleEventSource, DEFAULT_COMMANDS_TO_SKIP_SHELL, ITerminalLaunchError, IProcessDataEvent, ITerminalDimensionsOverride, SHOW_TERMINAL_CONFIG_PROMPT } from 'vs/workbench/contrib/terminal/common/terminal';
 import { ansiColorIdentifiers, TERMINAL_BACKGROUND_COLOR, TERMINAL_CURSOR_BACKGROUND_COLOR, TERMINAL_CURSOR_FOREGROUND_COLOR, TERMINAL_FOREGROUND_COLOR, TERMINAL_SELECTION_BACKGROUND_COLOR } from 'vs/workbench/contrib/terminal/common/terminalColorRegistry';
 import { TerminalConfigHelper } from 'vs/workbench/contrib/terminal/browser/terminalConfigHelper';
 import { TerminalLinkManager } from 'vs/workbench/contrib/terminal/browser/links/terminalLinkManager';
@@ -46,7 +46,6 @@ import { IEnvironmentVariableInfo } from 'vs/workbench/contrib/terminal/common/e
 import { TerminalLaunchHelpAction } from 'vs/workbench/contrib/terminal/browser/terminalActions';
 import { TypeAheadAddon } from 'vs/workbench/contrib/terminal/browser/terminalTypeAheadAddon';
 import { BrowserFeatures } from 'vs/base/browser/canIUse';
-import { Action } from 'vs/base/common/actions';
 import { ICommandService } from 'vs/platform/commands/common/commands';
 
 // How long in milliseconds should an average frame take to render for a notification to appear
@@ -201,7 +200,7 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 		@ICommandService private readonly _commands: ICommandService
 	) {
 		super();
-
+		this._storageService.store2(SHOW_TERMINAL_CONFIG_PROMPT, this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL, true), StorageScope.GLOBAL, StorageTarget.USER);
 		this._skipTerminalCommands = [];
 		this._isExiting = false;
 		this._hadFocusOnExit = false;
@@ -544,23 +543,38 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 				event.preventDefault();
 				return false;
 			}
-
+			const promptChoices: IPromptChoice[] = [
+				{
+					label: nls.localize('configureTerminalSettings', "Configure Terminal Settings"),
+					run: () => this._commands.executeCommand('workbench.action.openSettings', '@feature:terminal')
+				} as IPromptChoice,
+				{
+					label: nls.localize('maybeLater', "Maybe Later"),
+					run: () => { }
+				} as IPromptChoice,
+				{
+					label: nls.localize('dontShowAgain', "Don't Show Again"),
+					run: () => this._storageService.store2(SHOW_TERMINAL_CONFIG_PROMPT, false, StorageScope.GLOBAL, StorageTarget.MACHINE)
+				} as IPromptChoice
+			];
 			// Skip processing by xterm.js of keyboard events that resolve to commands described
 			// within commandsToSkipShell
 			if (resolveResult && !this._configHelper.config.overrideWorkbenchCommandsAndKeybindings && this._skipTerminalCommands.some(k => k === resolveResult.commandId)) {
 				event.preventDefault();
 				return false;
+			} else if (this._storageService.get(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL) && !this._configHelper.config.overrideWorkbenchCommandsAndKeybindings && event.key === 'Control') {
+				this._notificationService.prompt(
+					Severity.Info,
+					nls.localize('configure terminal settings', "Configure your terminal settings to determine whether the workbench or terminal handles keybindings and more."),
+					promptChoices
+				);
 			}
 
-			if (!this._configHelper.config.overrideWorkbenchCommandsAndKeybindings) {
-				this._notificationService.notify({
-					severity: Severity.Info,
-					message: nls.localize('message configure terminal settings', "Configure your terminal settings to determine whether the workbench or terminal handles keybindings and more."),
-					actions: {
-						primary: [new Action('configure terminal settings', nls.localize('configure terminal settings', "Configure Terminal Settings"), '', true, () => this._commands.executeCommand('workbench.action.openSettings', '@terminal'))]
-					}
-				});
+			// TODO: delete - used as reset for testing purposes
+			if (event.key === 'z') {
+				this._storageService.store2(SHOW_TERMINAL_CONFIG_PROMPT, true, StorageScope.GLOBAL, StorageTarget.MACHINE);
 			}
+
 			// Skip processing by xterm.js of keyboard events that match menu bar mnemonics
 			if (this._configHelper.config.allowMnemonics && !platform.isMacintosh && event.altKey) {
 				return false;
