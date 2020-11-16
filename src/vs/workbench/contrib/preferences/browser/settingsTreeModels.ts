@@ -25,6 +25,7 @@ export interface ISettingsEditorViewState {
 	settingsTarget: SettingsTarget;
 	tagFilters?: Set<string>;
 	extensionFilters?: Set<string>;
+	featureFilter?: Set<string>;
 	filterToCategory?: SettingsTreeGroupElement;
 }
 
@@ -275,6 +276,20 @@ export class SettingsTreeSettingElement extends SettingsTreeElement {
 		}
 
 		return true;
+	}
+
+	matchesAnyFeature(featureFilter?: Set<string>): boolean {
+		if (!featureFilter || !featureFilter.size) {
+			return true;
+		}
+
+		const filter = Array.from(featureFilter)[0].toLowerCase();
+
+		if (!['explorer', 'search', 'debug', 'scm', 'extensions', 'terminal', 'task', 'problems', 'output', 'comments', 'remote', 'Timeline'].includes(filter)) {
+			return false;
+		}
+
+		return this.setting.key.toLowerCase().startsWith(filter);
 	}
 
 	matchesAnyExtension(extensionFilters?: Set<string>): boolean {
@@ -609,7 +624,7 @@ export class SearchResultModel extends SettingsTreeModel {
 		// Save time, filter children in the search model instead of relying on the tree filter, which still requires heights to be calculated.
 		const isRemote = !!this.environmentService.remoteAuthority;
 		this.root.children = this.root.children
-			.filter(child => child instanceof SettingsTreeSettingElement && child.matchesAllTags(this._viewState.tagFilters) && child.matchesScope(this._viewState.settingsTarget, isRemote) && child.matchesAnyExtension(this._viewState.extensionFilters));
+			.filter(child => child instanceof SettingsTreeSettingElement && child.matchesAllTags(this._viewState.tagFilters) && child.matchesScope(this._viewState.settingsTarget, isRemote) && child.matchesAnyExtension(this._viewState.extensionFilters) && child.matchesAnyFeature(this._viewState.featureFilter));
 
 		if (this.newExtensionSearchResults && this.newExtensionSearchResults.filterMatches.length) {
 			const resultExtensionIds = this.newExtensionSearchResults.filterMatches
@@ -639,13 +654,16 @@ export interface IParsedQuery {
 	tags: string[];
 	query: string;
 	extensionFilters: string[];
+	featureFilters?: string[];
 }
 
 const tagRegex = /(^|\s)@tag:("([^"]*)"|[^"]\S*)/g;
 const extensionRegex = /(^|\s)@ext:("([^"]*)"|[^"]\S*)?/g;
+const featureRegex = /(^|\s)@feature:("([^"]*)"|[^"]\S*)?/g;
 export function parseQuery(query: string): IParsedQuery {
 	const tags: string[] = [];
 	const extensions: string[] = [];
+	const features: string[] = [];
 	query = query.replace(tagRegex, (_, __, quotedTag, tag) => {
 		tags.push(tag || quotedTag);
 		return '';
@@ -664,11 +682,20 @@ export function parseQuery(query: string): IParsedQuery {
 		return '';
 	});
 
+	query = query.replace(featureRegex, (_, __, quotedFeatureId, featureId) => {
+		const featureQuery: string = quotedFeatureId || featureId;
+		if (featureQuery) {
+			features.push(featureQuery);
+		}
+		return '';
+	});
+
 	query = query.trim();
 
 	return {
 		tags,
 		extensionFilters: extensions,
+		featureFilters: features,
 		query
 	};
 }
