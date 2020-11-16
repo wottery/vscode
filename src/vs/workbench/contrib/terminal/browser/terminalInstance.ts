@@ -200,7 +200,6 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 		@ICommandService private readonly _commands: ICommandService
 	) {
 		super();
-		this._storageService.store2(SHOW_TERMINAL_CONFIG_PROMPT, this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL, true), StorageScope.GLOBAL, StorageTarget.USER);
 		this._skipTerminalCommands = [];
 		this._isExiting = false;
 		this._hadFocusOnExit = false;
@@ -546,7 +545,10 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 			const promptChoices: IPromptChoice[] = [
 				{
 					label: nls.localize('configureTerminalSettings', "Configure Terminal Settings"),
-					run: () => this._commands.executeCommand('workbench.action.openSettings', '@feature:terminal')
+					run: () => {
+						this._commands.executeCommand('workbench.action.openSettings', '@feature:terminal');
+						this._storageService.store2(SHOW_TERMINAL_CONFIG_PROMPT, false, StorageScope.GLOBAL, StorageTarget.USER);
+					}
 				} as IPromptChoice,
 				{
 					label: nls.localize('maybeLater', "Maybe Later"),
@@ -554,15 +556,16 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 				} as IPromptChoice,
 				{
 					label: nls.localize('dontShowAgain', "Don't Show Again"),
-					run: () => this._storageService.store2(SHOW_TERMINAL_CONFIG_PROMPT, false, StorageScope.GLOBAL, StorageTarget.MACHINE)
+					run: () => this._storageService.store2(SHOW_TERMINAL_CONFIG_PROMPT, false, StorageScope.GLOBAL, StorageTarget.USER)
 				} as IPromptChoice
 			];
+
 			// Skip processing by xterm.js of keyboard events that resolve to commands described
 			// within commandsToSkipShell
 			if (resolveResult && !this._configHelper.config.overrideWorkbenchCommandsAndKeybindings && this._skipTerminalCommands.some(k => k === resolveResult.commandId)) {
 				event.preventDefault();
 				return false;
-			} else if (this._storageService.get(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL) && !this._configHelper.config.overrideWorkbenchCommandsAndKeybindings && event.key === 'Control') {
+			} else if (this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL, true) && !this._configHelper.config.overrideWorkbenchCommandsAndKeybindings && event.key === 'Control') {
 				this._notificationService.prompt(
 					Severity.Info,
 					nls.localize('configure terminal settings', "Configure your terminal settings to determine whether the workbench or terminal handles keybindings and more."),
@@ -572,7 +575,7 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 
 			// TODO: delete - used as reset for testing purposes
 			if (event.key === 'z') {
-				this._storageService.store2(SHOW_TERMINAL_CONFIG_PROMPT, true, StorageScope.GLOBAL, StorageTarget.MACHINE);
+				this._storageService.store2(SHOW_TERMINAL_CONFIG_PROMPT, true, StorageScope.GLOBAL, StorageTarget.USER);
 			}
 
 			// Skip processing by xterm.js of keyboard events that match menu bar mnemonics
