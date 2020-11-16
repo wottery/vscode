@@ -569,6 +569,7 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 				!this._configHelper.config.overrideWorkbenchCommandsAndKeybindings &&
 				!this._configHelper.config.allowChords &&
 				this._skipTerminalCommands.length === 118 &&
+				event.type === 'keydown' &&
 				event.key === 'Control' || event.key === 'Command') {
 				this._notificationService.prompt(
 					Severity.Info,
