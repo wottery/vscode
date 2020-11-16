@@ -565,7 +565,11 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 			if (resolveResult && !this._configHelper.config.overrideWorkbenchCommandsAndKeybindings && this._skipTerminalCommands.some(k => k === resolveResult.commandId)) {
 				event.preventDefault();
 				return false;
-			} else if (this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL, true) && !this._configHelper.config.overrideWorkbenchCommandsAndKeybindings && event.key === 'Control') {
+			} else if (this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL, true) &&
+				!this._configHelper.config.overrideWorkbenchCommandsAndKeybindings &&
+				!this._configHelper.config.allowChords &&
+				this._skipTerminalCommands.length === 118 &&
+				event.key === 'Control' || event.key === 'Command') {
 				this._notificationService.prompt(
 					Severity.Info,
 					nls.localize('configure terminal settings', "Configure your terminal settings to determine whether the workbench or terminal handles keybindings and more."),
