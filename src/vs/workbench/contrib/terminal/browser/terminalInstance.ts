@@ -201,6 +201,7 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 	) {
 		super();
 		this._skipTerminalCommands = [];
+
 		this._isExiting = false;
 		this._hadFocusOnExit = false;
 		this._isVisible = false;
@@ -570,7 +571,7 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 				return false;
 			} else if (this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL, true) &&
 				!this._configHelper.config.overrideWorkbenchCommandsAndKeybindings &&
-				!this._configHelper.config.allowChords &&
+				this._configHelper.config.allowChords &&
 				this._skipTerminalCommands.length === 118 &&
 				event.type === 'keydown' &&
 				event.key === 'Control' || event.key === 'Command') {
@@ -580,6 +581,9 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 					promptChoices
 				);
 			}
+			// TODO: make default / expected values of config helper to compare current settings to.
+			// check if any are non default in the above.
+			console.log(this._configHelper.config);
 
 			// TODO: delete - used as reset for testing purposes
 			if (event.key === 'z') {
