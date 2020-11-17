@@ -16,7 +16,7 @@ export const terminalConfiguration: IConfigurationNode = {
 	type: 'object',
 	properties: {
 		'terminal.integrated.overrideWorkbenchCommandsAndKeybindings': {
-			description: localize('terminal.integrated.overrideWorkbenchCommandsAndKeybindings', "Controls whether the terminal, when focused, handles nearly all of the commands and keybindings. Excludes opening the command palette, focusing the side bar, and focusing the activity bar."),
+			description: localize('terminal.integrated.overrideWorkbenchCommandsAndKeybindings', "Dispatches most keybindings to the terminal instead of the workbench. To configure specific cases, instead use 'terminal.integrated.commandsToSkipShell'."),
 			type: 'boolean',
 			default: false
 		},
