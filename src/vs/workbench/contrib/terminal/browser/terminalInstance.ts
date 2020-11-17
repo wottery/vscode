@@ -566,13 +566,11 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 
 			// Skip processing by xterm.js of keyboard events that resolve to commands described
 			// within commandsToSkipShell
-			if (resolveResult && !this._configHelper.config.overrideWorkbenchCommandsAndKeybindings && this._skipTerminalCommands.some(k => k === resolveResult.commandId)) {
+			const isCommand = resolveResult && this._skipTerminalCommands.some(k => k === resolveResult.commandId);
+			if (isCommand && !this._configHelper.config.overrideWorkbenchCommandsAndKeybindings) {
 				event.preventDefault();
 				return false;
-			} else if (this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL, true) &&
-				this.allSettingsDefault() &&
-				event.type === 'keydown' &&
-				event.key === 'Control' || event.key === 'Command') {
+			} else if (isCommand && this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL, true)) {
 				this._notificationService.prompt(
 					Severity.Info,
 					nls.localize('configure terminal settings', "Should terminal input be handled by the terminal or workbench in cases where keybindings for both exist?"),
@@ -677,7 +675,7 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 
 	private allSettingsDefault(): boolean {
 		const terminalKey = 'terminal.integrated.';
-		const settings = Object.keys(this._configHelper.config).map(setting => this._configurationService.inspect(terminalKey + setting));
+		const settings = Object.keys(this._configHelper.config).filter(setting => setting !== 'shell').map(setting => this._configurationService.inspect(terminalKey + setting));
 		const modifiedSettings = settings.filter(config => typeof (config.value) === ('object' || 'undefined') ? JSON.stringify(config.defaultValue) !== JSON.stringify(config.value) : config.defaultValue !== config.value);
 		return modifiedSettings.length === 0;
 	}
