@@ -557,18 +557,19 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 				} as IPromptChoice
 			];
 
-			// Skip processing by xterm.js of keyboard events that resolve to commands described
-			// within commandsToSkipShell
-			const isCommand = resolveResult && this._skipTerminalCommands.some(k => k === resolveResult.commandId);
-			if (isCommand && !this._configHelper.config.overrideWorkbenchCommandsAndKeybindings) {
-				event.preventDefault();
-				return false;
-			} else if (isCommand && this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL, true)) {
-				this._notificationService.prompt(
-					Severity.Info,
-					nls.localize('configure terminal settings', "Some keybindings are dispatched to the workbench by default."),
-					promptChoices
-				);
+			// for keyboard events that resolve to commands described
+			// within commandsToSkipShell, either alert or skip processing by xterm.js of
+			if (resolveResult && this._skipTerminalCommands.some(k => k === resolveResult.commandId)) {
+				if (!this._configHelper.config.overrideWorkbenchCommandsAndKeybindings && this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL, true)) {
+					this._notificationService.prompt(
+						Severity.Info,
+						nls.localize('configure terminal settings', "Some keybindings are dispatched to the workbench by default."),
+						promptChoices
+					);
+				} else {
+					event.preventDefault();
+					return false;
+				}
 			}
 
 			// TODO: delete - used as reset for testing purposes
