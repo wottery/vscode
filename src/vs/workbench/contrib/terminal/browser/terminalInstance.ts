@@ -544,15 +544,18 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 			}
 			const promptChoices: IPromptChoice[] = [
 				{
-					label: nls.localize('configureTerminalSettings', "Configure Terminal Settings"),
+					label: nls.localize('terminalOverrideWorkbench', "Terminal"),
 					run: () => {
-						this._commands.executeCommand('workbench.action.openSettings', '@feature:terminal');
+						this._configurationService.updateValue('terminal.integrated.overrideWorkbenchCommandsAndKeybindings', true, ConfigurationTarget.USER);
 						this._storageService.store2(SHOW_TERMINAL_CONFIG_PROMPT, false, StorageScope.GLOBAL, StorageTarget.USER);
 					}
 				} as IPromptChoice,
 				{
-					label: nls.localize('maybeLater', "Maybe Later"),
-					run: () => { }
+					label: nls.localize('configureTerminalSettings', "View Terminal Settings"),
+					run: () => {
+						this._commands.executeCommand('workbench.action.openSettings', '@feature:terminal');
+						this._storageService.store2(SHOW_TERMINAL_CONFIG_PROMPT, false, StorageScope.GLOBAL, StorageTarget.USER);
+					}
 				} as IPromptChoice,
 				{
 					label: nls.localize('dontShowAgain', "Don't Show Again"),
@@ -573,7 +576,7 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 				event.key === 'Control' || event.key === 'Command') {
 				this._notificationService.prompt(
 					Severity.Info,
-					nls.localize('configure terminal settings', "Configure your terminal settings to determine whether the workbench or terminal handles keybindings and more."),
+					nls.localize('configure terminal settings', "Should terminal input be handled by the terminal or workbench in cases where keybindings for both exist?"),
 					promptChoices
 				);
 			}
