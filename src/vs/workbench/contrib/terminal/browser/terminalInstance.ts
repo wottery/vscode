@@ -570,9 +570,7 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 				event.preventDefault();
 				return false;
 			} else if (this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL, true) &&
-				!this._configHelper.config.overrideWorkbenchCommandsAndKeybindings &&
-				this._configHelper.config.allowChords &&
-				this._skipTerminalCommands.length === 118 &&
+				this.allSettingsDefault() &&
 				event.type === 'keydown' &&
 				event.key === 'Control' || event.key === 'Command') {
 				this._notificationService.prompt(
@@ -581,9 +579,6 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 					promptChoices
 				);
 			}
-			// TODO: make default / expected values of config helper to compare current settings to.
-			// check if any are non default in the above.
-			console.log(this._configHelper.config);
 
 			// TODO: delete - used as reset for testing purposes
 			if (event.key === 'z') {
@@ -678,6 +673,13 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 		if (!neverMeasureRenderTime && this._configHelper.config.rendererType === 'auto') {
 			this._measureRenderTime();
 		}
+	}
+
+	private allSettingsDefault(): boolean {
+		const terminalKey = 'terminal.integrated.';
+		const settings = Object.keys(this._configHelper.config).map(setting => this._configurationService.inspect(terminalKey + setting));
+		const modifiedSettings = settings.filter(config => typeof (config.value) === ('object' || 'undefined') ? JSON.stringify(config.defaultValue) !== JSON.stringify(config.value) : config.defaultValue !== config.value);
+		return modifiedSettings.length === 0;
 	}
 
 	private async _measureRenderTime(): Promise<void> {
