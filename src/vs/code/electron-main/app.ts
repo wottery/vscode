@@ -261,24 +261,6 @@ export class CodeApplication extends Disposable {
 			this.windowsMainService?.openEmptyWindow({ context: OpenContext.DESKTOP }); //macOS native tab "+" button
 		});
 
-		ipc.on('vscode:fetchShellEnv', async (event: IpcMainEvent) => {
-			const webContents = event.sender;
-
-			try {
-				const shellEnv = await getShellEnvironment(this.logService, this.environmentService);
-
-				if (!webContents.isDestroyed()) {
-					webContents.send('vscode:acceptShellEnv', shellEnv);
-				}
-			} catch (error) {
-				if (!webContents.isDestroyed()) {
-					webContents.send('vscode:acceptShellEnv', {});
-				}
-
-				this.logService.error('Error fetching shell env', error);
-			}
-		});
-
 		ipc.on('vscode:toggleDevTools', (event: IpcMainEvent) => event.sender.toggleDevTools());
 		ipc.on('vscode:openDevTools', (event: IpcMainEvent) => event.sender.openDevTools());
 

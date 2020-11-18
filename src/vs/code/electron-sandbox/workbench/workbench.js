@@ -14,9 +14,7 @@
 	const perf = perfLib();
 	perf.mark('renderer/started');
 
-	// Load environment in parallel to workbench loading to avoid waterfall
 	const bootstrapWindow = bootstrapWindowLib();
-	const whenEnvResolved = bootstrapWindow.globals().process.whenEnvResolved();
 
 	// Load workbench main JS, CSS and NLS all in parallel. This is an
 	// optimization to prevent a waterfall of loading to happen, because
@@ -32,10 +30,6 @@
 			// Mark start of workbench
 			perf.mark('didLoadWorkbenchMain');
 			performance.mark('workbench-start');
-
-			// Wait for process environment being fully resolved
-			await whenEnvResolved;
-
 			perf.mark('main/startup');
 
 			// @ts-ignore

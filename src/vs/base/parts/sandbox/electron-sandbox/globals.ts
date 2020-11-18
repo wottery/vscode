@@ -40,12 +40,6 @@ export interface ISandboxNodeProcess extends INodeProcess {
 	getuid(): number;
 
 	/**
-	 * Allows to await resolving the full process environment by checking for the shell environment
-	 * of the OS in certain cases (e.g. when the app is started from the Dock on macOS).
-	 */
-	whenEnvResolved(): Promise<void>;
-
-	/**
 	 * Adds callback to the "next tick queue". This queue is fully drained
 	 * after the current operation on the JavaScript stack runs to completion
 	 * and before the event loop is allowed to continue.

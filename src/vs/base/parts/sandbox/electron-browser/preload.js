@@ -99,23 +99,11 @@
 		 * Support for a subset of access to node.js global `process`.
 		 */
 		process: {
+
 			get platform() { return process.platform; },
 			get env() { return process.env; },
 			get versions() { return process.versions; },
 			get type() { return 'renderer'; },
-
-			_whenEnvResolved: undefined,
-			whenEnvResolved:
-				/**
-				 * @returns when the shell environment has been resolved.
-				 */
-				function () {
-					if (!this._whenEnvResolved) {
-						this._whenEnvResolved = resolveEnv();
-					}
-
-					return this._whenEnvResolved;
-				},
 
 			nextTick:
 				/**
@@ -216,36 +204,6 @@
 		}
 
 		return true;
-	}
-
-	/**
-	 * If VSCode is not run from a terminal, we should resolve additional
-	 * shell specific environment from the OS shell to ensure we are seeing
-	 * all development related environment variables. We do this from the
-	 * main process because it may involve spawning a shell.
-	 *
-	 * @returns {Promise<void>}
-	 */
-	function resolveEnv() {
-		return new Promise(function (resolve) {
-			const handle = setTimeout(function () {
-				console.warn('Preload: Unable to resolve shell environment in a reasonable time');
-
-				// It took too long to fetch the shell environment, return
-				resolve();
-			}, 3000);
-
-			ipcRenderer.once('vscode:acceptShellEnv', function (event, shellEnv) {
-				clearTimeout(handle);
-
-				// Assign all keys of the shell environment to our process environment
-				Object.assign(process.env, shellEnv);
-
-				resolve();
-			});
-
-			ipcRenderer.send('vscode:fetchShellEnv');
-		});
 	}
 
 	//#endregion
