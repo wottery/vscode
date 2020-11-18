@@ -548,25 +548,25 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 					label: nls.localize('configureTerminalSettings', "Configure Terminal Settings"),
 					run: () => {
 						this._commands.executeCommand('workbench.action.openSettings', '@feature:terminal');
-						this._storageService.store2(SHOW_TERMINAL_CONFIG_PROMPT, false, StorageScope.GLOBAL, StorageTarget.USER);
+						this._storageService.store(SHOW_TERMINAL_CONFIG_PROMPT, false, StorageScope.GLOBAL, StorageTarget.USER);
 					}
 				} as IPromptChoice,
 				{
 					label: nls.localize('dontShowAgain', "Don't Show Again"),
-					run: () => this._storageService.store2(SHOW_TERMINAL_CONFIG_PROMPT, false, StorageScope.GLOBAL, StorageTarget.USER)
+					run: () => this._storageService.store(SHOW_TERMINAL_CONFIG_PROMPT, false, StorageScope.GLOBAL, StorageTarget.USER)
 				} as IPromptChoice
 			];
 
 			// for keyboard events that resolve to commands described
 			// within commandsToSkipShell, either alert or skip processing by xterm.js of
 			if (resolveResult && this._skipTerminalCommands.some(k => k === resolveResult.commandId)) {
-				if (!this._configHelper.config.overrideWorkbenchCommandsAndKeybindings && this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL, true)) {
+				if (this._configHelper.config.sendToShell && this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL, true)) {
 					this._notificationService.prompt(
 						Severity.Info,
 						nls.localize('configure terminal settings', "Some keybindings are dispatched to the workbench by default."),
 						promptChoices
 					);
-				} else {
+				} else if (!this._configHelper.config.sendToShell) {
 					event.preventDefault();
 					return false;
 				}
@@ -574,7 +574,7 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 
 			// TODO: delete - used as reset for testing purposes
 			if (event.key === 'z') {
-				this._storageService.store2(SHOW_TERMINAL_CONFIG_PROMPT, true, StorageScope.GLOBAL, StorageTarget.USER);
+				this._storageService.store(SHOW_TERMINAL_CONFIG_PROMPT, true, StorageScope.GLOBAL, StorageTarget.USER);
 			}
 
 			// Skip processing by xterm.js of keyboard events that match menu bar mnemonics
@@ -665,13 +665,6 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 		if (!neverMeasureRenderTime && this._configHelper.config.rendererType === 'auto') {
 			this._measureRenderTime();
 		}
-	}
-
-	private allSettingsDefault(): boolean {
-		const terminalKey = 'terminal.integrated.';
-		const settings = Object.keys(this._configHelper.config).filter(setting => setting !== 'shell').map(setting => this._configurationService.inspect(terminalKey + setting));
-		const modifiedSettings = settings.filter(config => typeof (config.value) === ('object' || 'undefined') ? JSON.stringify(config.defaultValue) !== JSON.stringify(config.value) : config.defaultValue !== config.value);
-		return modifiedSettings.length === 0;
 	}
 
 	private async _measureRenderTime(): Promise<void> {

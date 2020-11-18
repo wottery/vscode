@@ -92,7 +92,7 @@ export class TOCTreeModel {
 			const isRemote = !!this.environmentService.remoteAuthority;
 			return child.matchesScope(this._viewState.settingsTarget, isRemote) &&
 				child.matchesAllTags(this._viewState.tagFilters) &&
-				child.matchesAnyFeature(this._viewState.featureFilter) &&
+				child.matchesAnyFeature(this._viewState.featureFilters) &&
 				child.matchesAnyExtension(this._viewState.extensionFilters);
 		}).length;
 	}

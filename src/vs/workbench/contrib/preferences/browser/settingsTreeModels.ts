@@ -25,7 +25,8 @@ export interface ISettingsEditorViewState {
 	settingsTarget: SettingsTarget;
 	tagFilters?: Set<string>;
 	extensionFilters?: Set<string>;
-	featureFilter?: Set<string>;
+	featureFilters?: Set<string>;
+	idFilters?: Set<string>;
 	filterToCategory?: SettingsTreeGroupElement;
 }
 
@@ -278,18 +279,12 @@ export class SettingsTreeSettingElement extends SettingsTreeElement {
 		return true;
 	}
 
-	matchesAnyFeature(featureFilter?: Set<string>): boolean {
-		if (!featureFilter || !featureFilter.size) {
+	matchesAnyFeature(featureFilters?: Set<string>): boolean {
+		const features = ['explorer', 'search', 'debug', 'scm', 'extensions', 'terminal', 'task', 'problems', 'output', 'comments', 'remote', 'timeline'];
+		if (!featureFilters || !featureFilters.size) {
 			return true;
 		}
-
-		const filter = Array.from(featureFilter)[0].toLowerCase();
-
-		if (!['explorer', 'search', 'debug', 'scm', 'extensions', 'terminal', 'task', 'problems', 'output', 'comments', 'remote', 'Timeline'].includes(filter)) {
-			return false;
-		}
-
-		return this.setting.key.toLowerCase().startsWith(filter);
+		return Array.from(featureFilters).filter(feature => features.includes(feature)).some(feature => this.setting.key.toLowerCase().startsWith(feature));
 	}
 
 	matchesAnyExtension(extensionFilters?: Set<string>): boolean {
@@ -302,6 +297,18 @@ export class SettingsTreeSettingElement extends SettingsTreeElement {
 		}
 
 		return Array.from(extensionFilters).some(extensionId => extensionId.toLowerCase() === this.setting.extensionInfo!.id.toLowerCase());
+	}
+
+	matchesAnyId(idFilters?: Set<string>): boolean {
+		if (!idFilters || !idFilters.size) {
+			return true;
+		}
+
+		if (!this.setting.key) {
+			return false;
+		}
+
+		return Array.from(idFilters).some(id => id === this.setting.key);
 	}
 }
 
@@ -624,7 +631,7 @@ export class SearchResultModel extends SettingsTreeModel {
 		// Save time, filter children in the search model instead of relying on the tree filter, which still requires heights to be calculated.
 		const isRemote = !!this.environmentService.remoteAuthority;
 		this.root.children = this.root.children
-			.filter(child => child instanceof SettingsTreeSettingElement && child.matchesAllTags(this._viewState.tagFilters) && child.matchesScope(this._viewState.settingsTarget, isRemote) && child.matchesAnyExtension(this._viewState.extensionFilters) && child.matchesAnyFeature(this._viewState.featureFilter));
+			.filter(child => child instanceof SettingsTreeSettingElement && child.matchesAllTags(this._viewState.tagFilters) && child.matchesScope(this._viewState.settingsTarget, isRemote) && child.matchesAnyExtension(this._viewState.extensionFilters) && child.matchesAnyFeature(this._viewState.featureFilters) && child.matchesAnyId(this._viewState.idFilters));
 
 		if (this.newExtensionSearchResults && this.newExtensionSearchResults.filterMatches.length) {
 			const resultExtensionIds = this.newExtensionSearchResults.filterMatches
@@ -654,16 +661,19 @@ export interface IParsedQuery {
 	tags: string[];
 	query: string;
 	extensionFilters: string[];
-	featureFilters?: string[];
+	featureFilters: string[];
+	idFilters: string[];
 }
 
 const tagRegex = /(^|\s)@tag:("([^"]*)"|[^"]\S*)/g;
 const extensionRegex = /(^|\s)@ext:("([^"]*)"|[^"]\S*)?/g;
 const featureRegex = /(^|\s)@feature:("([^"]*)"|[^"]\S*)?/g;
+const idRegex = /(^|\s)@id:("([^"]*)"|[^"]\S*)?/g;
 export function parseQuery(query: string): IParsedQuery {
 	const tags: string[] = [];
 	const extensions: string[] = [];
 	const features: string[] = [];
+	const ids: string[] = [];
 	query = query.replace(tagRegex, (_, __, quotedTag, tag) => {
 		tags.push(tag || quotedTag);
 		return '';
@@ -690,12 +700,21 @@ export function parseQuery(query: string): IParsedQuery {
 		return '';
 	});
 
+	query = query.replace(idRegex, (_, __, quotedId, id) => {
+		const idQuery: string = quotedId || id;
+		if (idQuery) {
+			ids.push(idQuery);
+		}
+		return '';
+	});
+
 	query = query.trim();
 
 	return {
 		tags,
 		extensionFilters: extensions,
 		featureFilters: features,
+		idFilters: ids,
 		query
 	};
 }
