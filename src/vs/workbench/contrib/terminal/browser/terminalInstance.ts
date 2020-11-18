@@ -558,7 +558,7 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 			];
 
 			// for keyboard events that resolve to commands described
-			// within commandsToSkipShell, either alert or skip processing by xterm.js of
+			// within commandsToSkipShell, either alert or skip processing by xterm.js
 			if (resolveResult && this._skipTerminalCommands.some(k => k === resolveResult.commandId) && !this._configHelper.config.sendToShell) {
 				if (this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL, true)) {
 					this._notificationService.prompt(
@@ -569,11 +569,6 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 				}
 				event.preventDefault();
 				return false;
-			}
-
-			// TODO: delete - used as reset for testing purposes
-			if (event.key === 'z') {
-				this._storageService.store(SHOW_TERMINAL_CONFIG_PROMPT, true, StorageScope.GLOBAL, StorageTarget.USER);
 			}
 
 			// Skip processing by xterm.js of keyboard events that match menu bar mnemonics
