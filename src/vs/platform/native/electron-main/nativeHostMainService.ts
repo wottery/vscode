@@ -10,7 +10,7 @@ import { OpenContext } from 'vs/platform/windows/node/window';
 import { ILifecycleMainService } from 'vs/platform/lifecycle/electron-main/lifecycleMainService';
 import { IOpenedWindow, IOpenWindowOptions, IWindowOpenable, IOpenEmptyWindowOptions, IColorScheme } from 'vs/platform/windows/common/windows';
 import { INativeOpenDialogOptions } from 'vs/platform/dialogs/common/dialogs';
-import { isMacintosh, isWindows, isRootUser, isLinux } from 'vs/base/common/platform';
+import { isMacintosh, isWindows, isRootUser, isLinux, IProcessEnvironment } from 'vs/base/common/platform';
 import { ICommonNativeHostService, IOSProperties, IOSStatistics } from 'vs/platform/native/common/native';
 import { ISerializableCommandAction } from 'vs/platform/actions/common/actions';
 import { IEnvironmentMainService } from 'vs/platform/environment/electron-main/environmentMainService';
@@ -28,6 +28,7 @@ import { dirname, join } from 'vs/base/common/path';
 import product from 'vs/platform/product/common/product';
 import { memoize } from 'vs/base/common/decorators';
 import { Disposable } from 'vs/base/common/lifecycle';
+import { getShellEnvironment } from 'vs/code/node/shellEnv';
 
 export interface INativeHostMainService extends AddFirstParameterToFunctions<ICommonNativeHostService, Promise<unknown> /* only methods, not events */, number | undefined /* window ID */> { }
 
@@ -453,6 +454,20 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 
 	async getOSVirtualMachineHint(): Promise<number> {
 		return virtualMachineHint.value();
+	}
+
+	async getShellEnv(): Promise<IProcessEnvironment> {
+		const result: IProcessEnvironment = Object.create(null);
+
+		const shellEnvironment = await getShellEnvironment(this.logService, this.environmentService);
+		for (const key of Object.keys(shellEnvironment)) {
+			const value = shellEnvironment[key];
+			if (typeof value === 'string') {
+				result[key] = value;
+			}
+		}
+
+		return result;
 	}
 
 	//#endregion

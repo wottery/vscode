@@ -9,6 +9,7 @@ import { IOpenedWindow, IWindowOpenable, IOpenEmptyWindowOptions, IOpenWindowOpt
 import { INativeOpenDialogOptions } from 'vs/platform/dialogs/common/dialogs';
 import { ISerializableCommandAction } from 'vs/platform/actions/common/actions';
 import { URI } from 'vs/base/common/uri';
+import { IProcessEnvironment } from 'vs/base/common/platform';
 
 export interface ICPUProperties {
 	model: string;
@@ -103,6 +104,8 @@ export interface ICommonNativeHostService {
 	getOSProperties(): Promise<IOSProperties>;
 	getOSStatistics(): Promise<IOSStatistics>;
 	getOSVirtualMachineHint(): Promise<number>;
+
+	getShellEnv(): Promise<IProcessEnvironment>;
 
 	// Process
 	killProcess(pid: number, code: string): Promise<void>;

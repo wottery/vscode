@@ -41,6 +41,7 @@ import { MouseInputEvent } from 'vs/base/parts/sandbox/common/electronTypes';
 import { IModeService } from 'vs/editor/common/services/modeService';
 import { IOSProperties, IOSStatistics } from 'vs/platform/native/common/native';
 import { homedir, release } from 'os';
+import { IProcessEnvironment } from 'vs/base/common/platform';
 
 export const TestWorkbenchConfiguration: INativeWorkbenchConfiguration = {
 	windowId: 0,
@@ -205,6 +206,7 @@ export class TestNativeHostService implements INativeHostService {
 	async getOSProperties(): Promise<IOSProperties> { return Object.create(null); }
 	async getOSStatistics(): Promise<IOSStatistics> { return Object.create(null); }
 	async getOSVirtualMachineHint(): Promise<number> { return 0; }
+	async getShellEnv(): Promise<IProcessEnvironment> { return Object.create(null); }
 	async killProcess(): Promise<void> { }
 	async setDocumentEdited(edited: boolean): Promise<void> { }
 	async openExternal(url: string): Promise<boolean> { return false; }
