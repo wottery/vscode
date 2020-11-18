@@ -93,13 +93,13 @@ export function getShellEnvironment(logService: ILogService, environmentService:
 	if (!shellEnvPromise) {
 		if (environmentService.args['force-disable-user-env']) {
 			logService.trace('getShellEnvironment(): skipped (--force-disable-user-env)');
-			shellEnvPromise = Promise.resolve({});
+			shellEnvPromise = Promise.resolve(Object.create(null));
 		} else if (isWindows) {
 			logService.trace('getShellEnvironment(): skipped (Windows)');
-			shellEnvPromise = Promise.resolve({});
+			shellEnvPromise = Promise.resolve(Object.create(null));
 		} else if (process.env['VSCODE_CLI'] === '1' && !environmentService.args['force-user-env']) {
 			logService.trace('getShellEnvironment(): skipped (VSCODE_CLI is set)');
-			shellEnvPromise = Promise.resolve({});
+			shellEnvPromise = Promise.resolve(Object.create(null));
 		} else {
 			if (process.env['VSCODE_CLI'] === '1') {
 				logService.trace('getShellEnvironment(): running (--force-user-env)');
