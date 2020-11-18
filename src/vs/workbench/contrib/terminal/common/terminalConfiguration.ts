@@ -15,8 +15,8 @@ export const terminalConfiguration: IConfigurationNode = {
 	title: localize('terminalIntegratedConfigurationTitle', "Integrated Terminal"),
 	type: 'object',
 	properties: {
-		'terminal.integrated.overrideWorkbenchCommandsAndKeybindings': {
-			description: localize('terminal.integrated.overrideWorkbenchCommandsAndKeybindings', "Dispatches most keybindings to the terminal instead of the workbench. To configure specific cases, instead use 'terminal.integrated.commandsToSkipShell'."),
+		'terminal.integrated.sendToShell': {
+			description: localize('terminal.integrated.sendToShell', "Dispatches most keybindings to the terminal instead of the workbench, overriding `#terminal.integrated.commandsToSkipShell#`. To configure specific cases, instead use `#terminal.integrated.commandsToSkipShell#`."),
 			type: 'boolean',
 			default: false
 		},

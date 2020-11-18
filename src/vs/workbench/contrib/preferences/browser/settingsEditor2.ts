@@ -1146,6 +1146,7 @@ export class SettingsEditor2 extends EditorPane {
 			parsedQuery.tags.forEach(tag => this.viewState.tagFilters!.add(tag));
 			parsedQuery.featureFilters!.forEach(featureConfig => this.viewState.featureFilters!.add(featureConfig));
 			parsedQuery.extensionFilters.forEach(extensionId => this.viewState.extensionFilters!.add(extensionId));
+			parsedQuery.idFilters.forEach(id => this.viewState.idFilters!.add(id));
 		}
 
 		if (query && query !== '@') {

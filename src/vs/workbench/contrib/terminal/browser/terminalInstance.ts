@@ -547,7 +547,7 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 				{
 					label: nls.localize('configureTerminalSettings', "Configure Terminal Settings"),
 					run: () => {
-						this._commands.executeCommand('workbench.action.openSettings', '@feature:terminal');
+						this._commands.executeCommand('workbench.action.openSettings', '@id:terminal.integrated.commandsToSkipShell,terminal.integrated.sendToShell,terminal.integrated.allowChords');
 						this._storageService.store(SHOW_TERMINAL_CONFIG_PROMPT, false, StorageScope.GLOBAL, StorageTarget.USER);
 					}
 				} as IPromptChoice,
@@ -559,17 +559,16 @@ export class TerminalInstance extends Disposable implements ITerminalInstance {
 
 			// for keyboard events that resolve to commands described
 			// within commandsToSkipShell, either alert or skip processing by xterm.js of
-			if (resolveResult && this._skipTerminalCommands.some(k => k === resolveResult.commandId)) {
-				if (this._configHelper.config.sendToShell && this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL, true)) {
+			if (resolveResult && this._skipTerminalCommands.some(k => k === resolveResult.commandId) && !this._configHelper.config.sendToShell) {
+				if (this._storageService.getBoolean(SHOW_TERMINAL_CONFIG_PROMPT, StorageScope.GLOBAL, true)) {
 					this._notificationService.prompt(
 						Severity.Info,
 						nls.localize('configure terminal settings', "Some keybindings are dispatched to the workbench by default."),
 						promptChoices
 					);
-				} else if (!this._configHelper.config.sendToShell) {
-					event.preventDefault();
-					return false;
 				}
+				event.preventDefault();
+				return false;
 			}
 
 			// TODO: delete - used as reset for testing purposes

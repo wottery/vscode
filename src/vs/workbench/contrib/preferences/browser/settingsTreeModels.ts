@@ -692,18 +692,18 @@ export function parseQuery(query: string): IParsedQuery {
 		return '';
 	});
 
-	query = query.replace(featureRegex, (_, __, quotedFeatureId, featureId) => {
-		const featureQuery: string = quotedFeatureId || featureId;
+	query = query.replace(featureRegex, (_, __, quotedFeature, feature) => {
+		const featureQuery: string = feature || quotedFeature;
 		if (featureQuery) {
-			features.push(featureQuery);
+			features.push(...featureQuery.split(',').map(s => s.trim()).filter(s => !isFalsyOrWhitespace(s)));
 		}
 		return '';
 	});
 
 	query = query.replace(idRegex, (_, __, quotedId, id) => {
-		const idQuery: string = quotedId || id;
-		if (idQuery) {
-			ids.push(idQuery);
+		const idRegex: string = id || quotedId;
+		if (idRegex) {
+			ids.push(...idRegex.split(',').map(s => s.trim()).filter(s => !isFalsyOrWhitespace(s)));
 		}
 		return '';
 	});
