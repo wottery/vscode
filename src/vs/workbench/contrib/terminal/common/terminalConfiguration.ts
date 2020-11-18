@@ -16,7 +16,7 @@ export const terminalConfiguration: IConfigurationNode = {
 	type: 'object',
 	properties: {
 		'terminal.integrated.sendToShell': {
-			description: localize('terminal.integrated.sendToShell', "Dispatches most keybindings to the terminal instead of the workbench, overriding `#terminal.integrated.commandsToSkipShell#`. To configure specific cases, instead use `#terminal.integrated.commandsToSkipShell#`."),
+			markdownDescription: localize('terminal.integrated.sendToShell', "Dispatches most keybindings to the terminal instead of the workbench, overriding `#terminal.integrated.commandsToSkipShell#`, which can be used alternatively for fine tuning."),
 			type: 'boolean',
 			default: false
 		},
