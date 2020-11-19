@@ -97,6 +97,9 @@
 
 		/**
 		 * Support for a subset of access to node.js global `process`.
+		 *
+		 * Note: when `sandbox` is enabled, the only properties available
+		 * are https://github.com/electron/electron/blob/master/docs/api/process.md#sandbox
 		 */
 		process: {
 
@@ -104,35 +107,7 @@
 			get env() { return process.env; },
 			get versions() { return process.versions; },
 			get type() { return 'renderer'; },
-
-			nextTick:
-				/**
-				 * Adds callback to the "next tick queue". This queue is fully drained
-				 * after the current operation on the JavaScript stack runs to completion
-				 * and before the event loop is allowed to continue.
-				 *
-				 * @param {Function} callback
-				 * @param {any[]} args
-				 */
-				function nextTick(callback, ...args) {
-					return process.nextTick(callback, ...args);
-				},
-
-			cwd:
-				/**
-				 * @returns the current working directory.
-				 */
-				function () {
-					return process.cwd();
-				},
-
-			getuid:
-				/**
-				 * @returns the numeric user identity of the process
-				 */
-				function () {
-					return process.getuid();
-				},
+			get execPath() { return process.execPath; },
 
 			getProcessMemoryInfo:
 				/**
@@ -158,7 +133,7 @@
 		 * Some information about the context we are running in.
 		 */
 		context: {
-			get sandbox() { return process.argv.includes('--enable-sandbox'); }
+			get sandbox() { return process.sandboxed; }
 		}
 	};
 
