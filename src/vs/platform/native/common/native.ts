@@ -105,9 +105,9 @@ export interface ICommonNativeHostService {
 	getOSStatistics(): Promise<IOSStatistics>;
 	getOSVirtualMachineHint(): Promise<number>;
 
-	getShellEnv(): Promise<IProcessEnvironment>;
 
 	// Process
+	getProcessEnv(): Promise<IProcessEnvironment>;
 	killProcess(pid: number, code: string): Promise<void>;
 
 	// Clipboard

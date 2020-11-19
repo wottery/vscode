@@ -206,7 +206,7 @@ export class TestNativeHostService implements INativeHostService {
 	async getOSProperties(): Promise<IOSProperties> { return Object.create(null); }
 	async getOSStatistics(): Promise<IOSStatistics> { return Object.create(null); }
 	async getOSVirtualMachineHint(): Promise<number> { return 0; }
-	async getShellEnv(): Promise<IProcessEnvironment> { return Object.create(null); }
+	async getProcessEnv(): Promise<IProcessEnvironment> { return Object.create(null); }
 	async killProcess(): Promise<void> { }
 	async setDocumentEdited(edited: boolean): Promise<void> { }
 	async openExternal(url: string): Promise<boolean> { return false; }

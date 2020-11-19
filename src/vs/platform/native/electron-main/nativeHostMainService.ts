@@ -456,7 +456,12 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 		return virtualMachineHint.value();
 	}
 
-	async getShellEnv(): Promise<IProcessEnvironment> {
+	//#endregion
+
+
+	//#region Process
+
+	async getProcessEnv(windowId: number | undefined): Promise<IProcessEnvironment> {
 		const result: IProcessEnvironment = Object.create(null);
 
 		const shellEnvironment = await getShellEnvironment(this.logService, this.environmentService);
@@ -469,11 +474,6 @@ export class NativeHostMainService extends Disposable implements INativeHostMain
 
 		return result;
 	}
-
-	//#endregion
-
-
-	//#region Process
 
 	async killProcess(windowId: number | undefined, pid: number, code: string): Promise<void> {
 		process.kill(pid, code);
