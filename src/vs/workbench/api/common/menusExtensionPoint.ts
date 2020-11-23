@@ -74,17 +74,24 @@ const apiMenus: IAPIMenu[] = [
 		description: localize('menus.debugToolBar', "The debug toolbar menu")
 	},
 	{
+		key: 'menuBar/file',
+		id: MenuId.MenubarFileMenu,
+		description: localize('menus.file', "The top level file menu"),
+		proposed: true
+	},
+	{
+		key: 'menuBar/webHome',
+		id: MenuId.MenubarWebHomeMenu,
+		description: localize('menus.webHome', "The home indicator context menu (web only)"),
+		proposed: true,
+		supportsSubmenus: false
+	},
+	{
 		key: 'menuBar/webNavigation',
 		id: MenuId.MenubarWebNavigationMenu,
 		description: localize('menus.webNavigation', "The top level navigational menu (web only)"),
 		proposed: true,
 		supportsSubmenus: false
-	},
-	{
-		key: 'menuBar/file',
-		id: MenuId.MenubarFileMenu,
-		description: localize('menus.file', "The top level file menu"),
-		proposed: true
 	},
 	{
 		key: 'scm/title',
