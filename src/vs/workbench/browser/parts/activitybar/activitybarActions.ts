@@ -211,7 +211,7 @@ export class HomeActivityActionViewItem extends MenuActivityActionViewItem {
 	}
 }
 
-export class AccountsActionViewItem extends MenuActivityActionViewItem {
+export class AccountsActivityActionViewItem extends MenuActivityActionViewItem {
 
 	static readonly ACCOUNTS_VISIBILITY_PREFERENCE_KEY = 'workbench.activity.showAccounts';
 
@@ -304,7 +304,7 @@ export class AccountsActionViewItem extends MenuActivityActionViewItem {
 		}
 
 		menus.push(disposables.add(new Action('hide', nls.localize('hide', "Hide"), undefined, true, async () => {
-			this.storageService.store(AccountsActionViewItem.ACCOUNTS_VISIBILITY_PREFERENCE_KEY, false, StorageScope.GLOBAL, StorageTarget.USER);
+			this.storageService.store(AccountsActivityActionViewItem.ACCOUNTS_VISIBILITY_PREFERENCE_KEY, false, StorageScope.GLOBAL, StorageTarget.USER);
 		})));
 
 		return menus;
