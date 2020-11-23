@@ -87,13 +87,6 @@ const apiMenus: IAPIMenu[] = [
 		supportsSubmenus: false
 	},
 	{
-		key: 'menuBar/webNavigation',
-		id: MenuId.MenubarWebNavigationMenu,
-		description: localize('menus.webNavigation', "The top level navigational menu (web only)"),
-		proposed: true,
-		supportsSubmenus: false
-	},
-	{
 		key: 'scm/title',
 		id: MenuId.SCMTitle,
 		description: localize('menus.scmTitle', "The Source Control title menu")

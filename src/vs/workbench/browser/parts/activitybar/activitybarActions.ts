@@ -191,21 +191,24 @@ export class HomeActivityActionViewItem extends MenuActivityActionViewItem {
 		super(MenuId.MenubarWebHomeMenu, action, colors, themeService, menuService, contextMenuService, contextKeyService, configurationService, environmentService);
 	}
 
-	protected async resolveActions(accountsMenu: IMenu, disposables: DisposableStore): Promise<IAction[]> {
-		const actions = await super.resolveActions(accountsMenu, disposables);
+	protected async resolveActions(homeMenu: IMenu, disposables: DisposableStore): Promise<IAction[]> {
+		const actions = [];
 
-		if (actions.length) {
+		// Go Home
+		actions.push(disposables.add(new Action('goHome', nls.localize('goHome', "Go Home"), undefined, true, async () => window.location.href = this.goHomeHref)));
+		actions.push(disposables.add(new Separator()));
+
+		// Contributed
+		const contributedActions = await super.resolveActions(homeMenu, disposables);
+		actions.push(...contributedActions);
+
+		// Hide
+		if (contributedActions.length > 0) {
 			actions.push(disposables.add(new Separator()));
 		}
-
-		actions.push(disposables.add(new Action('goHome', nls.localize('goHome', "Go Home"), undefined, true, async () => window.location.href = this.goHomeHref)));
-
-		actions.push(
-			disposables.add(new Separator()),
-			disposables.add(new Action('hide', nls.localize('hide', "Hide"), undefined, true, async () => {
-				this.storageService.store(HomeActivityActionViewItem.HOME_BAR_VISIBILITY_PREFERENCE, false, StorageScope.GLOBAL, StorageTarget.USER);
-			}))
-		);
+		actions.push(disposables.add(new Action('hide', nls.localize('hide', "Hide"), undefined, true, async () => {
+			this.storageService.store(HomeActivityActionViewItem.HOME_BAR_VISIBILITY_PREFERENCE, false, StorageScope.GLOBAL, StorageTarget.USER);
+		})));
 
 		return actions;
 	}
